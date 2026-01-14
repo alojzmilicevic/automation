@@ -34,15 +34,10 @@ services:
       - EXECUTIONS_DATA_SAVE_ON_ERROR=all
       - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
       
-      # Security - change this encryption key to something unique
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
       
     volumes:
-      # Persist all n8n data
       - n8n_data:/home/node/.n8n
-      # Mount your data files (uncomment if you want to use local files)
-      # - ./data.json:/home/node/.n8n/data.json:ro
-      # - ./data.csv:/home/node/.n8n/data.csv:ro
 
 volumes:
   n8n_data:

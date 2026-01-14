@@ -3,7 +3,7 @@
 .env.local
 .env.*.local
 
-# n8n data folder (if using local volume)
+# n8n data folder (contains credentials and database) - NEVER commit this
 n8n-data/
 .n8n/
 

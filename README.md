@@ -14,7 +14,6 @@ cp env.template .env
 
 Then edit `.env` with your actual credentials:
 - n8n owner email and password
-- Twilio credentials (if using SMS)
 - Generate a random encryption key
 
 ### 2. Start n8n

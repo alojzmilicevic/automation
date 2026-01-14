@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      # Set timezone
+      - GENERIC_TIMEZONE=Europe/Stockholm
+      - TZ=Europe/Stockholm
+      
+      # Database - using SQLite for simplicity
+      - DB_TYPE=sqlite
+      - DB_SQLITE_VACUUM_ON_STARTUP=true
+      
+      # Owner account - automatically created on first start
+      - N8N_OWNER_EMAIL=${N8N_OWNER_EMAIL}
+      - N8N_OWNER_PASSWORD=${N8N_OWNER_PASSWORD}
+      - N8N_OWNER_FIRST_NAME=${N8N_OWNER_FIRST_NAME:-Owner}
+      - N8N_OWNER_LAST_NAME=${N8N_OWNER_LAST_NAME:-User}
+      
+      # Basic configuration
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      
+      # Execution settings
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=all
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
+      
+      # Security - change this encryption key to something unique
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      
+    volumes:
+      # Persist all n8n data
+      - n8n_data:/home/node/.n8n
+      # Mount your data files (uncomment if you want to use local files)
+      # - ./data.json:/home/node/.n8n/data.json:ro
+      # - ./data.csv:/home/node/.n8n/data.csv:ro
+
+volumes:
+  n8n_data:
+    driver: local

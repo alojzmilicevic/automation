@@ -1,0 +1,146 @@
+{
+  "name": "occasions",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1mCgRXGiCJzn-q7p0wsH1UBR_aVaR8BDQAj2WovsFG0o",
+          "mode": "list",
+          "cachedResultName": "data-birthday",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCgRXGiCJzn-q7p0wsH1UBR_aVaR8BDQAj2WovsFG0o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mCgRXGiCJzn-q7p0wsH1UBR_aVaR8BDQAj2WovsFG0o/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d77182a4-027f-451c-b278-1d0eefe7a647",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dOWeeteC3pwD5prR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "X066ABfRQ15ax4A1",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/X066ABfRQ15ax4A1",
+          "cachedResultName": "todays_events (sub)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        0
+      ],
+      "id": "377e1e90-3f42-40cd-b099-feacccbc5b04",
+      "name": "Call 'todays_events (sub)'",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "path": "cddf33c3-245d-4e47-a5a0-696d5bf4f76d",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4f19a3df-f948-45ca-a334-8350dbd976f6",
+      "name": "Webhook",
+      "webhookId": "cddf33c3-245d-4e47-a5a0-696d5bf4f76d"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"name\": \"Alma Cederblad\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        704,
+        0
+      ],
+      "id": "659df64f-6337-477f-8715-2427a126c179",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Call 'todays_events (sub)'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'todays_events (sub)'": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "cbde4d7b-1215-4d65-aed3-38e2b44ea17c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "012ea75bb09ae94e6c02d22229a05fb088440e3ef18a013fcdf13fab1a2a290e"
+  },
+  "id": "doRyMUHVVys7Z2Jt0lz_J",
+  "tags": []
+}

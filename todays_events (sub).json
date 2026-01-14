@@ -1,0 +1,323 @@
+{
+  "name": "todays_events (sub)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "a2a1ac16-925b-4dca-aace-97c55358cd0e",
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        2480,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "9d0fb298-5d51-41ef-b90b-c5a7f5e6b3a5",
+              "leftValue": "={{ $json.Type }}",
+              "rightValue": "nameday",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f43bed8a-e1a2-4d1f-8e2e-f69f22f6c87d",
+      "name": "Filter: Namedays",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "73ba1544-7f30-472a-ace0-bfb8e0ba2cc3",
+              "leftValue": "={{ $json.Type }}",
+              "rightValue": "birthday",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cab13eb1-5aaa-42c6-9f33-af4d1cde3411",
+      "name": "Filter: Birthdays",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "968f5689-749a-4ced-993b-199fe8be65be",
+              "leftValue": "={{ $json.Type }}",
+              "rightValue": "slava",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "80f77670-35ff-4ec5-bf6a-f316805ecdcd",
+      "name": "Filter: Slava",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        2704,
+        2064
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Swedish Nameday Calendar\nconst swedishNamedays = {\n  \"Adriana\": { month: 3, day: 4 },\n  \"Alma\": { month: 9, day: 8 },\n  \"Maria\": { month: 2, day: 28 },\n  \"William\": { month: 4, day: 6 },\n  \"Linnea\": { month: 5, day: 13 },\n  \"Annica\": { month: 4, day: 21 },\n  \"Anton\": { month: 1, day: 17 },\n  \n};\n\nconst items = $input.all();\nconst today = new Date();\nconst currentMonth = today.getMonth() + 1;\nconst currentDay = today.getDate();\n\nreturn items.map(item => {\n  const name = item.json.Name;\n  const nameday = swedishNamedays[name];\n  \n  if (nameday) {\n    item.json.event_month = nameday.month;\n    item.json.event_day = nameday.day;\n    item.json.is_today = (nameday.month === currentMonth && nameday.day === currentDay);\n  } else {\n    item.json.event_month = null;\n    item.json.event_day = null;\n    item.json.is_today = false;\n  }\n  \n  return item;\n});"
+      },
+      "id": "5e27a0be-fb21-4ead-9a74-eb622d03c8a0",
+      "name": "Lookup Swedish Nameday",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if birthday is today\nconst items = $input.all();\nconst today = new Date();\nconst currentMonth = today.getMonth() + 1;\nconst currentDay = today.getDate();\n\nreturn items.map(item => {\n  const day = parseInt(item.json.Day);\n  const month = parseInt(item.json.Month);\n  \n  item.json.event_day = day;\n  item.json.event_month = month;\n  item.json.is_today = (month === currentMonth && day === currentDay);\n  \n  return item;\n});"
+      },
+      "id": "f2af259d-a7bd-4eef-a5f6-23e1c4709e07",
+      "name": "Check Birthday Date",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        1872
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if slava is today (Orthodox calendar)\nconst items = $input.all();\nconst today = new Date();\nconst currentMonth = today.getMonth() + 1;\nconst currentDay = today.getDate();\n\nreturn items.map(item => {\n  const day = parseInt(item.json.Day);\n  const month = parseInt(item.json.Month);\n  \n  item.json.event_day = day;\n  item.json.event_month = month;\n  item.json.is_today = (month === currentMonth && day === currentDay);\n  \n  return item;\n});"
+      },
+      "id": "f97ab9af-bee8-4812-8b9e-cb82d0c9f588",
+      "name": "Check Slava Date",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2928,
+        2064
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3152,
+        1856
+      ],
+      "id": "e479f14b-2b45-4179-af7e-064e1ed71e72",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "52973ed3-cf82-4373-aaf5-a562c04d7a44",
+              "leftValue": "={{ $json.is_today }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        3376,
+        1872
+      ],
+      "id": "833af1f0-421e-49a2-aed4-8e384fd86515",
+      "name": "Final check"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Filter: Namedays",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter: Birthdays",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Filter: Slava",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Namedays": {
+      "main": [
+        [
+          {
+            "node": "Lookup Swedish Nameday",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Birthdays": {
+      "main": [
+        [
+          {
+            "node": "Check Birthday Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Slava": {
+      "main": [
+        [
+          {
+            "node": "Check Slava Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Swedish Nameday": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Birthday Date": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check Slava Date": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Final check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final check": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "e1eda141-4bb4-4f11-8289-eaec9c13b48a",
+  "meta": {
+    "instanceId": "012ea75bb09ae94e6c02d22229a05fb088440e3ef18a013fcdf13fab1a2a290e"
+  },
+  "id": "X066ABfRQ15ax4A1",
+  "tags": []
+}

@@ -38,6 +38,8 @@ services:
       
     volumes:
       - n8n_data:/home/node/.n8n
+    labels:
+      - "com.n8n.url=http://localhost:5678"
 
 volumes:
   n8n_data:

@@ -5,13 +5,13 @@
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "a2a1ac16-925b-4dca-aace-97c55358cd0e",
+      "id": "94623b51-2b99-4fa3-9355-c6b3f57e613b",
       "name": "Start",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        2480,
-        1872
+        -224,
+        192
       ]
     },
     {
@@ -39,13 +39,13 @@
         },
         "options": {}
       },
-      "id": "f43bed8a-e1a2-4d1f-8e2e-f69f22f6c87d",
+      "id": "165af33a-eed3-446f-bdfb-9f29afd90178",
       "name": "Filter: Namedays",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2,
       "position": [
-        2704,
-        1680
+        0,
+        0
       ]
     },
     {
@@ -73,13 +73,13 @@
         },
         "options": {}
       },
-      "id": "cab13eb1-5aaa-42c6-9f33-af4d1cde3411",
+      "id": "9dc7c0ee-4e2e-468b-8986-6953bf3ed8af",
       "name": "Filter: Birthdays",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2,
       "position": [
-        2704,
-        1872
+        0,
+        192
       ]
     },
     {
@@ -107,52 +107,52 @@
         },
         "options": {}
       },
-      "id": "80f77670-35ff-4ec5-bf6a-f316805ecdcd",
+      "id": "67c00e3e-ec3e-4369-b3b0-a70a821fbb30",
       "name": "Filter: Slava",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2,
       "position": [
-        2704,
-        2064
+        0,
+        384
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Swedish Nameday Calendar\nconst swedishNamedays = {\n  \"Adriana\": { month: 3, day: 4 },\n  \"Alma\": { month: 9, day: 8 },\n  \"Maria\": { month: 2, day: 28 },\n  \"William\": { month: 4, day: 6 },\n  \"Linnea\": { month: 5, day: 13 },\n  \"Annica\": { month: 4, day: 21 },\n  \"Anton\": { month: 1, day: 17 },\n  \n};\n\nconst items = $input.all();\nconst today = new Date();\nconst currentMonth = today.getMonth() + 1;\nconst currentDay = today.getDate();\n\nreturn items.map(item => {\n  const name = item.json.Name;\n  const nameday = swedishNamedays[name];\n  \n  if (nameday) {\n    item.json.event_month = nameday.month;\n    item.json.event_day = nameday.day;\n    item.json.is_today = (nameday.month === currentMonth && nameday.day === currentDay);\n  } else {\n    item.json.event_month = null;\n    item.json.event_day = null;\n    item.json.is_today = false;\n  }\n  \n  return item;\n});"
+        "jsCode": "const today = new Date();\nconst currentMonth = today.getMonth() + 1;\nconst currentDay = today.getDate();\nconst baseUrl = 'https://swedish-nameday-api.vercel.app/api/name';\n\nconst items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  const newItem = { json: { ...item.json } };\n\n  // Handle MiddleNames - could be array or semicolon-separated string\n  let middleNames = [];\n  if (newItem.json.MiddleNames) {\n    if (Array.isArray(newItem.json.MiddleNames)) {\n      middleNames = newItem.json.MiddleNames;\n    } else {\n      middleNames = newItem.json.MiddleNames\n        .split(\";\")\n        .map(n => n.trim())\n        .filter(Boolean);\n    }\n  }\n  newItem.json.MiddleNames = middleNames;\n\n  // Combine all names to check\n  const allNames = [newItem.json.Firstname, ...middleNames].filter(Boolean);\n\n  // Check if any name has nameday today\n  let foundToday = false;\n\n  for (const name of allNames) {\n    try {\n      const response = await this.helpers.httpRequest({\n        method: 'GET',\n        url: `${baseUrl}/${encodeURIComponent(name)}`,\n      });\n\n      if (response.dates && response.dates.length > 0) {\n        const [month, day] = response.dates[0].date.split('-').map(Number);\n        if (month === currentMonth && day === currentDay) {\n                console.log(response.dates, name)\n          foundToday = true;\n          break;\n        }\n      }\n    } catch (error) {\n      // Name not found, continue\n    }\n  }\n\n  newItem.json.is_today = foundToday;\n  output.push(newItem);\n}\n\nreturn output;"
       },
-      "id": "5e27a0be-fb21-4ead-9a74-eb622d03c8a0",
+      "id": "2c83656f-a3b9-4fb3-946f-2200c670e08f",
       "name": "Lookup Swedish Nameday",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2928,
-        1680
+        224,
+        0
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Check if birthday is today\nconst items = $input.all();\nconst today = new Date();\nconst currentMonth = today.getMonth() + 1;\nconst currentDay = today.getDate();\n\nreturn items.map(item => {\n  const day = parseInt(item.json.Day);\n  const month = parseInt(item.json.Month);\n  \n  item.json.event_day = day;\n  item.json.event_month = month;\n  item.json.is_today = (month === currentMonth && day === currentDay);\n  \n  return item;\n});"
+        "jsCode": "// Check if birthday is today\nconst items = $input.all();\nconst today = new Date();\nconst currentMonth = today.getMonth() + 1; // 1–12\nconst currentDay = today.getDate();\nconst currentYear = today.getFullYear();\n\nreturn items.map(item => {\n  const day = Number(item.json.Day);\n  const month = Number(item.json.Month); // 1–12\n  const year = Number(item.json.Year);\n\n  // Is birthday today\n  item.json.is_today = (month === currentMonth && day === currentDay);\n\n  // Build proper birth date (months are 0-based)\n  const birthDate = new Date(year, month - 1, day);\n\n  // Calculate age correctly\n  if (Number.isFinite(birthDate.getTime())) {\n    let age = currentYear - year;\n\n    const birthdayThisYear = new Date(\n      currentYear,\n      month - 1,\n      day\n    );\n\n    if (today < birthdayThisYear) {\n      age -= 1;\n    }\n\n    item.json.age = age;\n  } else {\n    item.json.age = null;\n  }\n\n  return item;\n});\n"
       },
-      "id": "f2af259d-a7bd-4eef-a5f6-23e1c4709e07",
+      "id": "04096bb2-14d6-4e90-8a39-318e74298abe",
       "name": "Check Birthday Date",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2928,
-        1872
+        224,
+        192
       ]
     },
     {
       "parameters": {
         "jsCode": "// Check if slava is today (Orthodox calendar)\nconst items = $input.all();\nconst today = new Date();\nconst currentMonth = today.getMonth() + 1;\nconst currentDay = today.getDate();\n\nreturn items.map(item => {\n  const day = parseInt(item.json.Day);\n  const month = parseInt(item.json.Month);\n  \n  item.json.event_day = day;\n  item.json.event_month = month;\n  item.json.is_today = (month === currentMonth && day === currentDay);\n  \n  return item;\n});"
       },
-      "id": "f97ab9af-bee8-4812-8b9e-cb82d0c9f588",
+      "id": "b19785d8-41ea-4fec-813c-2b28624506da",
       "name": "Check Slava Date",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2928,
-        2064
+        224,
+        384
       ]
     },
     {
@@ -162,10 +162,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        3152,
-        1856
+        448,
+        176
       ],
-      "id": "e479f14b-2b45-4179-af7e-064e1ed71e72",
+      "id": "35f50992-9a5e-4ac6-af31-638a6f7ab02f",
       "name": "Merge"
     },
     {
@@ -187,6 +187,16 @@
                 "operation": "true",
                 "singleValue": true
               }
+            },
+            {
+              "id": "9147d2c9-f2ff-40b1-bb78-e0fa65e7ada3",
+              "leftValue": "={{ $json.Active }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -196,14 +206,669 @@
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
       "position": [
-        3376,
-        1872
+        672,
+        192
       ],
-      "id": "833af1f0-421e-49a2-aed4-8e384fd86515",
+      "id": "a7c4502e-ab59-46f0-bfb9-9856935b0bce",
       "name": "Final check"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Start": [
+      {
+        "json": {
+          "row_number": 2,
+          "Id": "birthday_annica_cederblad",
+          "Type": "birthday",
+          "Day": 21,
+          "Month": 7,
+          "Year": 1963,
+          "Nick": "Annica",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Annika",
+          "MiddleNames": [
+            "Eva",
+            "Maria"
+          ],
+          "Lastname": "Cederblad",
+          "Phonenumber": "0702144984"
+        }
+      },
+      {
+        "json": {
+          "row_number": 3,
+          "Id": "nameday_annica_cederblad",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Annica",
+          "Ack": true,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Annika",
+          "MiddleNames": [
+            "Eva",
+            "Maria"
+          ],
+          "Lastname": "Cederblad",
+          "Phonenumber": "0702144984"
+        }
+      },
+      {
+        "json": {
+          "row_number": 4,
+          "Id": "birthday_anton_cederblad",
+          "Type": "birthday",
+          "Day": 30,
+          "Month": 6,
+          "Year": 1994,
+          "Nick": "Anton",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Anton",
+          "MiddleNames": [
+            "Håkan"
+          ],
+          "Lastname": "Cederblad",
+          "Phonenumber": "0724487033"
+        }
+      },
+      {
+        "json": {
+          "row_number": 5,
+          "Id": "nameday_anton_cederblad",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Anton",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Anton",
+          "MiddleNames": [
+            "Håkan"
+          ],
+          "Lastname": "Cederblad",
+          "Phonenumber": "0724487033"
+        }
+      },
+      {
+        "json": {
+          "row_number": 6,
+          "Id": "birthday_may",
+          "Type": "birthday",
+          "Day": 15,
+          "Month": 12,
+          "Year": 1988,
+          "Nick": "May",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "May",
+          "MiddleNames": [],
+          "Lastname": "Cederblad",
+          "Phonenumber": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 7,
+          "Id": "nameday_may",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "May",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "May",
+          "MiddleNames": [],
+          "Lastname": "Cederblad",
+          "Phonenumber": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 8,
+          "Id": "nameday_alma_cederblad",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Alma",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Alma",
+          "MiddleNames": [
+            "Maria"
+          ],
+          "Lastname": "Cederblad",
+          "Phonenumber": "0732626945"
+        }
+      },
+      {
+        "json": {
+          "row_number": 9,
+          "Id": "birthday_dad",
+          "Type": "birthday",
+          "Day": 22,
+          "Month": 10,
+          "Year": 1966,
+          "Nick": "Tata",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Zeljko",
+          "MiddleNames": [],
+          "Lastname": "Milicevic",
+          "Phonenumber": "0768729852"
+        }
+      },
+      {
+        "json": {
+          "row_number": 10,
+          "Id": "birthday_mom",
+          "Type": "birthday",
+          "Day": 6,
+          "Month": 7,
+          "Year": 1964,
+          "Nick": "Mama",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Svetlana",
+          "MiddleNames": [],
+          "Lastname": "Milotic",
+          "Phonenumber": "0707640223"
+        }
+      },
+      {
+        "json": {
+          "row_number": 11,
+          "Id": "birthday_sister",
+          "Type": "birthday",
+          "Day": 20,
+          "Month": 12,
+          "Year": 1993,
+          "Nick": "Adde",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Adriana",
+          "MiddleNames": [],
+          "Lastname": "Milicevic",
+          "Phonenumber": "0730526242"
+        }
+      },
+      {
+        "json": {
+          "row_number": 12,
+          "Id": "nameday_sister",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Adde",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Adriana",
+          "MiddleNames": [],
+          "Lastname": "Milicevic",
+          "Phonenumber": "0730526242"
+        }
+      },
+      {
+        "json": {
+          "row_number": 13,
+          "Id": "birthday_emil_rundgren",
+          "Type": "birthday",
+          "Day": 12,
+          "Month": 2,
+          "Year": 1989,
+          "Nick": "Emil",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Emil",
+          "MiddleNames": [
+            "Nils",
+            "Martin"
+          ],
+          "Lastname": "Rundgren",
+          "Phonenumber": "0702360424"
+        }
+      },
+      {
+        "json": {
+          "row_number": 14,
+          "Id": "birthday_miro",
+          "Type": "birthday",
+          "Day": 20,
+          "Month": 6,
+          "Year": 1961,
+          "Nick": "Sipe",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Miro",
+          "MiddleNames": [],
+          "Lastname": "Milotic",
+          "Phonenumber": "0721562270"
+        }
+      },
+      {
+        "json": {
+          "row_number": 15,
+          "Id": "slava_miro",
+          "Type": "slava",
+          "Day": 19,
+          "Month": 12,
+          "Year": "",
+          "Nick": "Sipe",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Miro",
+          "MiddleNames": [],
+          "Lastname": "Milotic",
+          "Phonenumber": "0721562270"
+        }
+      },
+      {
+        "json": {
+          "row_number": 16,
+          "Id": "birthday_helena",
+          "Type": "birthday",
+          "Day": 12,
+          "Month": 3,
+          "Year": 1991,
+          "Nick": "Sesse",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Helena",
+          "MiddleNames": [
+            "Jenny",
+            "Maria"
+          ],
+          "Lastname": "Warstedt",
+          "Phonenumber": "‭0731513979‬"
+        }
+      },
+      {
+        "json": {
+          "row_number": 17,
+          "Id": "nameday_helena",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Sesse",
+          "Ack": true,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Helena",
+          "MiddleNames": [
+            "Jenny",
+            "Maria"
+          ],
+          "Lastname": "Warstedt",
+          "Phonenumber": "‭0731513979‬"
+        }
+      },
+      {
+        "json": {
+          "row_number": 18,
+          "Id": "birthday_william_stokke",
+          "Type": "birthday",
+          "Day": 18,
+          "Month": 9,
+          "Year": 1996,
+          "Nick": "Mut",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "William",
+          "MiddleNames": [
+            "Axel"
+          ],
+          "Lastname": "Stokke",
+          "Phonenumber": "0738191638"
+        }
+      },
+      {
+        "json": {
+          "row_number": 19,
+          "Id": "nameday_william_stokke",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Smillo",
+          "Ack": true,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "William",
+          "MiddleNames": [
+            "Axel"
+          ],
+          "Lastname": "Stokke",
+          "Phonenumber": "0738191638"
+        }
+      },
+      {
+        "json": {
+          "row_number": 20,
+          "Id": "birthday_linnea_bothun",
+          "Type": "birthday",
+          "Day": 11,
+          "Month": 4,
+          "Year": 1996,
+          "Nick": "Blipp",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Linnea",
+          "MiddleNames": [
+            "Aurora"
+          ],
+          "Lastname": "Böthun",
+          "Phonenumber": "0767746420"
+        }
+      },
+      {
+        "json": {
+          "row_number": 21,
+          "Id": "nameday_linnea_bothun",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Blipp",
+          "Ack": true,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Linnea",
+          "MiddleNames": [
+            "Aurora"
+          ],
+          "Lastname": "Böthun",
+          "Phonenumber": "0767746420"
+        }
+      },
+      {
+        "json": {
+          "row_number": 22,
+          "Id": "birthday_gabbie",
+          "Type": "birthday",
+          "Day": 1,
+          "Month": 6,
+          "Year": 1993,
+          "Nick": "gabbi",
+          "Ack": false,
+          "Channel": "discord",
+          "Active": true,
+          "Firstname": "Gabriella",
+          "MiddleNames": [
+            "Karin"
+          ],
+          "Lastname": "Rydenfors",
+          "Phonenumber": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 23,
+          "Id": "nameday_gabbie",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "gabbi",
+          "Ack": false,
+          "Channel": "discord",
+          "Active": true,
+          "Firstname": "Gabriella",
+          "MiddleNames": [
+            "Karin"
+          ],
+          "Lastname": "Rydenfors",
+          "Phonenumber": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 24,
+          "Id": "nameday_micke",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Micke",
+          "Ack": false,
+          "Channel": "discord",
+          "Active": true,
+          "Firstname": "Mikael",
+          "MiddleNames": [
+            "Oscar"
+          ],
+          "Lastname": "Pettersson",
+          "Phonenumber": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 25,
+          "Id": "birthday_micke",
+          "Type": "birthday",
+          "Day": 22,
+          "Month": 11,
+          "Year": 1991,
+          "Nick": "Micke",
+          "Ack": false,
+          "Channel": "discord",
+          "Active": true,
+          "Firstname": "Mikael",
+          "MiddleNames": [
+            "Oscar"
+          ],
+          "Lastname": "Pettersson",
+          "Phonenumber": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 26,
+          "Id": "birthday_tetka_lidija",
+          "Type": "birthday",
+          "Day": 16,
+          "Month": 2,
+          "Year": 1964,
+          "Nick": "Tetka",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Lidija",
+          "MiddleNames": [],
+          "Lastname": "Knezevic",
+          "Phonenumber": 38763982395
+        }
+      },
+      {
+        "json": {
+          "row_number": 27,
+          "Id": "birthday_tetka_snjezana",
+          "Type": "birthday",
+          "Day": 8,
+          "Month": 12,
+          "Year": 1959,
+          "Nick": "Tetka",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Snjezana",
+          "MiddleNames": [],
+          "Lastname": "Licina",
+          "Phonenumber": "0702547129"
+        }
+      },
+      {
+        "json": {
+          "row_number": 28,
+          "Id": "birthday_milos_licina",
+          "Type": "birthday",
+          "Day": 23,
+          "Month": 10,
+          "Year": 1989,
+          "Nick": "Mille",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Milos",
+          "MiddleNames": [],
+          "Lastname": "Licina",
+          "Phonenumber": "0735944636"
+        }
+      },
+      {
+        "json": {
+          "row_number": 29,
+          "Id": "birthday_bojana_licina",
+          "Type": "birthday",
+          "Day": 20,
+          "Month": 11,
+          "Year": 1991,
+          "Nick": "Bojana",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Bojana",
+          "MiddleNames": [],
+          "Lastname": "Licina",
+          "Phonenumber": "0704401621"
+        }
+      },
+      {
+        "json": {
+          "row_number": 30,
+          "Id": "birthday_andrija_andrijevic",
+          "Type": "birthday",
+          "Day": 8,
+          "Month": 2,
+          "Year": 1991,
+          "Nick": "Andrija",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": false,
+          "Firstname": "Andrija",
+          "MiddleNames": [],
+          "Lastname": "Andrijevic",
+          "Phonenumber": ""
+        }
+      },
+      {
+        "json": {
+          "row_number": 31,
+          "Id": "birthday_marijo_andrijevic",
+          "Type": "birthday",
+          "Day": 12,
+          "Month": 7,
+          "Year": 1993,
+          "Nick": "Marre",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Mario",
+          "MiddleNames": [],
+          "Lastname": "Andrijevic",
+          "Phonenumber": "0735999142"
+        }
+      },
+      {
+        "json": {
+          "row_number": 32,
+          "Id": "birthday_violetta_andrijevic",
+          "Type": "birthday",
+          "Day": 29,
+          "Month": 4,
+          "Year": 1968,
+          "Nick": "Ujna",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Violetta",
+          "MiddleNames": [],
+          "Lastname": "Andrijevic",
+          "Phonenumber": "0760868284"
+        }
+      },
+      {
+        "json": {
+          "row_number": 33,
+          "Id": "birthday_test_person",
+          "Type": "birthday",
+          "Day": 19,
+          "Month": 1,
+          "Year": 1990,
+          "Nick": "Test",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": false,
+          "Firstname": "Test",
+          "MiddleNames": [],
+          "Lastname": "Person",
+          "Phonenumber": "0123456789"
+        }
+      },
+      {
+        "json": {
+          "row_number": 34,
+          "Id": "nameday_test_person",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Test",
+          "Ack": true,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Test",
+          "MiddleNames": [
+            "Henrik",
+            "Henry"
+          ],
+          "Lastname": "Person",
+          "Phonenumber": "0724415751"
+        }
+      },
+      {
+        "json": {
+          "row_number": 35,
+          "Id": "birthday_test2_person",
+          "Type": "birthday",
+          "Day": 19,
+          "Month": 1,
+          "Year": 1991,
+          "Nick": "T2",
+          "Ack": false,
+          "Channel": "discord",
+          "Active": true,
+          "Firstname": "Alojz",
+          "MiddleNames": [],
+          "Lastname": "Milicevic",
+          "Phonenumber": "0724415751"
+        }
+      }
+    ]
+  },
   "connections": {
     "Start": {
       "main": [
@@ -302,22 +967,19 @@
           }
         ]
       ]
-    },
-    "Final check": {
-      "main": [
-        []
-      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "e1eda141-4bb4-4f11-8289-eaec9c13b48a",
+  "versionId": "acacf131-6b32-40b0-8d31-fb26e595ba5b",
   "meta": {
     "instanceId": "012ea75bb09ae94e6c02d22229a05fb088440e3ef18a013fcdf13fab1a2a290e"
   },
-  "id": "X066ABfRQ15ax4A1",
+  "id": "4QLxxjCB3xdsAqmIt1AYn",
   "tags": []
 }

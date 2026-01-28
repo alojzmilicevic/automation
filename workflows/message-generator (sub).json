@@ -1,7 +1,5 @@
 {
-  "id": "6poFDJMxBdSm7L3s",
   "name": "message-generator (sub)",
-  "active": true,
   "nodes": [
     {
       "parameters": {
@@ -42,6 +40,77 @@
       "name": "When clicking 'Execute workflow'"
     }
   ],
+  "pinData": {
+    "When clicking 'Execute workflow'": [
+      {
+        "json": {
+          "row_number": 34,
+          "Id": "nameday_test_person",
+          "Type": "nameday",
+          "Day": "",
+          "Month": "",
+          "Year": "",
+          "Nick": "Test",
+          "Ack": true,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Test",
+          "MiddleNames": [
+            "Erika"
+          ],
+          "Lastname": "Person",
+          "Phonenumber": "0724415751",
+          "Tone": "casual",
+          "Language": "hr",
+          "is_today": true
+        }
+      },
+      {
+        "json": {
+          "row_number": 33,
+          "Id": "birthday_test_person",
+          "Type": "birthday",
+          "Day": 24,
+          "Month": 1,
+          "Year": 1990,
+          "Nick": "Test",
+          "Ack": false,
+          "Channel": "sms",
+          "Active": true,
+          "Firstname": "Test",
+          "MiddleNames": [],
+          "Lastname": "Person",
+          "Phonenumber": "0123456789",
+          "Tone": "formal",
+          "Language": "en",
+          "is_today": true,
+          "age": 36
+        }
+      },
+      {
+        "json": {
+          "row_number": 35,
+          "Id": "birthday_test2_person",
+          "Type": "birthday",
+          "Day": 24,
+          "Month": 1,
+          "Year": 1991,
+          "Nick": "T2",
+          "Ack": false,
+          "Channel": "discord",
+          "Active": true,
+          "Firstname": "Alojz",
+          "MiddleNames": [],
+          "Lastname": "Milicevic",
+          "Phonenumber": "0724415751",
+          "Tone": "personal",
+          "Language": "se",
+          "is_today": true,
+          "age": 35
+        }
+      }
+    ]
+  },
   "connections": {
     "When Executed by Another Workflow": {
       "main": [
@@ -71,11 +140,17 @@
       ]
     }
   },
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false,
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "staticData": null,
+  "versionId": "e33c7548-40a2-4e60-99ac-93f2173345ee",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "012ea75bb09ae94e6c02d22229a05fb088440e3ef18a013fcdf13fab1a2a290e"
+  },
+  "id": "6poFDJMxBdSm7L3s",
   "tags": []
 }

@@ -1,7 +1,5 @@
 {
-  "id": "doRyMUHVVys7Z2Jt0lz_J",
   "name": "occasions",
-  "active": true,
   "nodes": [
     {
       "parameters": {
@@ -24,14 +22,14 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        224,
-        0
+        208,
+        32
       ],
-      "id": "d77182a4-027f-451c-b278-1d0eefe7a647",
+      "id": "9d006811-35bc-4646-9d98-991b0d3dce01",
       "name": "Get row(s) in sheet",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "dOWeeteC3pwD5prR",
+          "id": "hi5S4BHGhJEqZvOG",
           "name": "Google Sheets account"
         }
       }
@@ -40,9 +38,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "X066ABfRQ15ax4A1",
+          "value": "4QLxxjCB3xdsAqmIt1AYn",
           "mode": "list",
-          "cachedResultUrl": "/workflow/X066ABfRQ15ax4A1",
+          "cachedResultUrl": "/workflow/4QLxxjCB3xdsAqmIt1AYn",
           "cachedResultName": "todays_events (sub)"
         },
         "workflowInputs": {
@@ -58,12 +56,12 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        480,
-        0
+        656,
+        32
       ],
-      "id": "377e1e90-3f42-40cd-b099-feacccbc5b04",
+      "id": "b0dc737e-ec25-4f85-b247-333dd56c8417",
       "name": "Call 'todays_events (sub)'",
-      "alwaysOutputData": true
+      "alwaysOutputData": false
     },
     {
       "parameters": {
@@ -74,35 +72,87 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
-        0
+        -16,
+        -64
       ],
-      "id": "4f19a3df-f948-45ca-a334-8350dbd976f6",
+      "id": "673903cb-b148-4ea7-b43a-85f3bcb8e21c",
       "name": "Webhook",
       "webhookId": "cddf33c3-245d-4e47-a5a0-696d5bf4f76d"
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\n  \"name\": \"Alma Cederblad\"\n}",
+        "respondWith": "allIncomingItems",
         "options": {}
       },
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        704,
-        0
+        1120,
+        32
       ],
-      "id": "659df64f-6337-477f-8715-2427a126c179",
+      "id": "fe066e62-d0ef-401e-a948-3bebfa801a70",
       "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        128
+      ],
+      "id": "51652977-d60a-487a-b347-ba2459f7dd85",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = [];\n\nfor (const item of $input.all()) {\n  const newItem = { json: { ...item.json } };\n\n  let list = []\n  if (newItem.json.MiddleNames) {\n    list = newItem.json.MiddleNames\n      .split(\";\")\n      .map(n => n.trim())\n      .filter(Boolean);\n\n  }\n\n  newItem.json.MiddleNames = list;\n  \n  output.push(newItem);\n}\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        32
+      ],
+      "id": "70242207-b188-4ae1-a12b-61808ae17015",
+      "name": "transform middlenames"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "6poFDJMxBdSm7L3s",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/6poFDJMxBdSm7L3s",
+          "cachedResultName": "message-generator (sub)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        880,
+        32
+      ],
+      "id": "3ded4aac-4054-48e1-a0b9-31569955f29d",
+      "name": "Call 'message-generator (sub)'"
     }
   ],
+  "pinData": {},
   "connections": {
     "Get row(s) in sheet": {
       "main": [
         [
           {
-            "node": "Call 'todays_events (sub)'",
+            "node": "transform middlenames",
             "type": "main",
             "index": 0
           }
@@ -113,7 +163,7 @@
       "main": [
         [
           {
-            "node": "Respond to Webhook",
+            "node": "Call 'message-generator (sub)'",
             "type": "main",
             "index": 0
           }
@@ -130,12 +180,59 @@
           }
         ]
       ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "transform middlenames": {
+      "main": [
+        [
+          {
+            "node": "Call 'todays_events (sub)'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Call 'message-generator (sub)'": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
+  "active": true,
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Europe/Stockholm",
+    "callerPolicy": "workflowsFromSameOwner"
   },
-  "staticData": null,
+  "versionId": "2a15a9aa-ea55-404f-a268-57437503aa1e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "012ea75bb09ae94e6c02d22229a05fb088440e3ef18a013fcdf13fab1a2a290e"
+  },
+  "id": "Sf6NmJEsbhg8Ga4_cjw6c",
   "tags": []
 }

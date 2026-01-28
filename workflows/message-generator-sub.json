@@ -1,0 +1,80 @@
+{
+  "id": "6poFDJMxBdSm7L3s",
+  "name": "message-generator (sub)",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "bfeefbb0-117f-4c70-9936-ed1bbdb1d211",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        1520,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const type = $json.Type;\nconst tone = $json.Tone;\nconst lang = $json.Language;\nconst name = $json.Firstname;\nconst nick = $json.Nick || name;\n\n// ---------- HELPERS ----------\nconst pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\nconst emojiOnce = (arr) => pick(arr);\n\n// ---------- EMOJIS ----------\nconst emojis = {\n  birthday: [\"🎉\", \"🥳\", \"🎂\", \"✨\"],\n  nameday: [\"🌼\", \"🌸\", \"✨\"]\n};\n\n// ---------- TEMPLATES ----------\nconst templates = {\n  se: {\n    birthday: {\n      formal: [\n        `Grattis på födelsedagen ${name}! 🎉`,\n        `Stort grattis på födelsedagen ${name}.`,\n        `Önskar dig en underbar födelsedag, ${name}.`,\n        `Grattis ${name}, och må din dag bli lika fin som du är.`,\n        `Hjärtlig grattis på födelsedagen, ${name}.`\n      ],\n      casual: [\n        `Grattis ${emojiOnce(emojis.birthday)} Hoppas du får en fin dag!`,\n        `Grattiiiiiis! 🥳 Ha en toppenfin dag!`,\n        `Grattis ${name}! 🎉 Njut av din dag!`,\n        `Hipp hipp hurra ${name}! 🎂`,\n        `Grattis på födelsedagen! Hoppas du blir firad ordentligt!`\n      ],\n      personal: [\n        `Grattis på födelsedagen, ${nick}! 🎉 Hoppas din dag är fylld med skratt, kramar och en massa ${nick}-sktrudelisar!`,\n        `Grattis ${nick}! 🎂 Må din dag bli lika fantastisk som en regnbåge gjord av kanelbullar!`,\n        `Grattis ${nick}! 🥳 Må din dag vara lika galen och fantastisk som en dansande flamingo!`,\n        `Grattis ${nick}! 🎉 Hoppas du får en dag som är lika söt som en chokladfontän!`,\n        `Grattis ${nick}! 🎂 Må din dag vara full av skratt, tårta och lite lagom chaos!`,\n        `Grattis ${nick}! 🥳 Må du få en dag med fler överraskningar än en skojig låda!`,\n        `Grattis ${nick}! 🎉 Må din dag vara som en stor kram av konfetti!`,\n        `Grattis ${nick}! 🎂 Hoppas du får en dag med mer glitter än en enhörning på disco!`\n      ]\n    },\n    nameday: {\n      formal: [\n        `Grattis på namnsdagen ${name}. Hoppas du får en fin dag.`,\n        `Önskar dig en trevlig namnsdag, ${name}.`,\n        `Grattis ${name} på namnsdagen.`\n      ],\n      casual: [\n        `Grattis på namnsdagen! 🌼`,\n        `Grattis ${name}! Hoppas du får en fin dag!`,\n        `Grattis på namnsdagen ${name}! 🎉`\n      ],\n      personal: [\n        `Grattis på namnsdagen ${nick}! 🌼 Må din dag vara lika härlig som en sockervaddsfestival!`,\n        `Grattis ${nick}! 🎉 Hoppas du får en dag fylld med skratt och lagom mycket bus!`,\n        `Grattis på namnsdagen! 🌸 Må din dag vara lika glittrig som en enhörning!`,\n        `Grattis ${nick}! 🌼 Hoppas din dag blir lika mysig som en filt och en kopp varm choklad!`,\n        `Grattis ${nick}! 🎉 Må din namnsdag vara lika rolig som en dansande kanelbulle!`\n      ]\n    }\n  },\n\n  en: {\n    birthday: {\n      formal: [\n        `Happy Birthday ${name}! 🎉`,\n        `Wishing you a very happy birthday, ${name}.`,\n        `Many happy returns on your birthday, ${name}.`,\n        `Warm birthday wishes to you, ${name}.`,\n        `Hope your birthday is as wonderful as you are, ${name}.`\n      ],\n      casual: [\n        `Happy Birthday ${nick}! 🎉`,\n        `Happy Birthday ${nick}! Have an awesome day!`,\n        `Happy Birthday! Hope it’s a great one!`,\n        `Cheers to you on your birthday! 🥳`,\n        `Happy Birthday ${nick}! Hope you get spoiled today!`\n      ],\n      personal: [\n        `Happy Birthday ${nick}! 🎉 May your day be as magical as a unicorn on roller skates!`,\n        `Happy Birthday ${nick}! 🥳 May your cake be huge and your worries tiny.`,\n        `Happy Birthday ${nick}! 🎂 Hope your day is filled with laughter and ridiculous joy!`,\n        `Happy Birthday ${nick}! 🎉 May your day be full of smiles, silly jokes, and unexpected fun!`,\n        `Happy Birthday ${nick}! 🥳 May your day be as awesome as a penguin in a party hat!`,\n        `Happy Birthday ${nick}! 🎂 May your day be full of confetti and zero adulting.`,\n        `Happy Birthday ${nick}! 🎉 Hope your day is more fun than a llama on a trampoline!`,\n        `Happy Birthday ${nick}! 🥳 May your day be as bright as a glitter cannon!`\n      ]\n    },\n    nameday: {\n      formal: [\n        `Happy Name Day ${name}!`,\n        `Wishing you a lovely Name Day, ${name}.`,\n        `Happy Name Day to you, ${name}.`\n      ],\n      casual: [\n        `Happy Name Day! 🌼`,\n        `Happy Name Day ${name}!`,\n        `Happy Name Day! Hope you have a great day!`\n      ],\n      personal: [\n        `Happy Name Day ${nick}! 🌼 May your day be filled with smiles and silly surprises!`,\n        `Happy Name Day ${nick}! 🎉 Hope your day is as fun as a confetti cannon!`,\n        `Happy Name Day ${nick}! 🌸 May your day be as bright as a disco ball!`,\n        `Happy Name Day ${nick}! 🎉 May your day be full of joy and tiny happy dances!`,\n        `Happy Name Day ${nick}! 🌼 Hope your day is filled with laughter and sweet treats!`\n      ]\n    }\n  },\n\n  hr: {\n    birthday: {\n      formal: [\n        `Sretan rođendan ${name}! 🎉`,\n        `Sve najbolje za rođendan, ${name}.`,\n        `Želim ti prekrasan rođendan, ${name}.`,\n        `Sretan rođendan, ${name}. Neka ti dan bude divan.`,\n        `Najljepše želje za tvoj rođendan, ${name}.`\n      ],\n      casual: [\n        `Sretan rođendan ${nick}! 🎉`,\n        `Sretan rođendan ${nick}! Uživaj u danu!`,\n        `Sretan rođendan! Nadam se da ćeš se super provesti!`,\n        `Sretan rođendan! 🥳 Neka ti dan bude pun smijeha!`,\n        `Sretan rođendan ${nick}! 🎂`\n      ],\n      personal: [\n        `Sretan rođendan ${nick}! 🎉 Neka ti dan bude lud kao šumski medvjedić na rolerima!`,\n        `Sretan rođendan ${nick}! 🥳 Neka ti torta bude veća od problema!`,\n        `Sretan rođendan ${nick}! 🎂 Neka ti dan bude pun smijeha i slatkih iznenađenja!`,\n        `Sretan rođendan ${nick}! 🎉 Neka ti dan bude kao zabava u svemiru!`,\n        `Sretan rođendan ${nick}! 🥳 Neka ti dan bude pun konfeta i dobrih vibracija!`,\n        `Sretan rođendan ${nick}! 🎂 Neka ti dan bude kao ples s pingvinima!`,\n        `Sretan rođendan ${nick}! 🎉 Neka ti dan bude pun čarolije i smijeha!`\n      ]\n    },\n    nameday: {\n      formal: [\n        `Sretan imendan ${name}.`,\n        `Sve najbolje povodom imendana, ${name}.`,\n        `Sretan imendan, ${name}.`\n      ],\n      casual: [\n        `Sretan imendan! 🌼`,\n        `Sretan imendan ${name}!`,\n        `Sretan imendan! Nadam se da ćeš se lijepo provesti!`\n      ],\n      personal: [\n        `Sretan imendan ${nick}! 🌼 Neka ti dan bude pun smijeha i slatkih iznenađenja!`,\n        `Sretan imendan ${nick}! 🎉 Neka ti dan bude kao zabava s pingvinima!`,\n        `Sretan imendan ${nick}! 🌸 Neka ti dan bude pun konfeta i dobrih vibracija!`,\n        `Sretan imendan ${nick}! 🎉 Neka ti dan bude pun čarolije i veselja!`,\n        `Sretan imendan ${nick}! 🥳 Neka ti dan bude kao najluđa zabava ikad!`\n      ]\n    }\n  }\n};\n\n// ---------- FALLBACK ----------\nconst fallback = {\n  se: \"Grattis! 🎉 Hoppas du får en fin dag!\",\n  en: \"Happy Birthday! 🎉\",\n  hr: \"Sretan rođendan! 🎉\"\n};\n\n// ---------- ROUTING ----------\nconst langBlock = templates[lang];\n\nif (!langBlock || !langBlock[type] || !langBlock[type][tone]) {\n  return {\n    ...$json,\n    message: fallback[lang]\n  };\n}\n\nreturn {\n  ...$json,\n  message: pick(langBlock[type][tone])\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        368
+      ],
+      "id": "222d9080-a238-45af-b05d-bd4b8719e10c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        448
+      ],
+      "id": "3cb86b84-04d4-4d3f-9807-6796455c3b93",
+      "name": "When clicking 'Execute workflow'"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "tags": []
+}

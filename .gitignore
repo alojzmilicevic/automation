@@ -3,7 +3,7 @@
 .env.local
 .env.*.local
 
-# n8n data folder (contains credentials and database) - NEVER commit this
+# n8n data folder
 n8n-data/
 .n8n/
 
@@ -33,3 +33,7 @@ desktop.ini
 # Sensitive files
 credentials.json
 secrets.json
+
+# Caddy data (certificates, etc)
+caddy_data/
+caddy_config/

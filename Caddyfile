@@ -1,3 +1,3 @@
-n8n.alostuff.com {
+automation.alostuff.com {
     reverse_proxy n8n:5678
 }
